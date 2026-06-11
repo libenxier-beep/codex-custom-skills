@@ -39,15 +39,18 @@ Keep secrets in `.env.local` or the shell environment. Never commit `GITHUB_TOKE
 4. For daily work, run `npm run daily`; it should prefer pending seed repos unless `--skip-seeds` is used.
 5. Before selecting a repo, check `registry/learned_repos.json`; learned repos must be skipped.
 6. After accepted writes, regenerate indexes and cards, then run the harness.
-7. For dashboard changes, verify both API output and the UI.
+7. For legacy notes or any run that predates evidence tables, run `npm run evidence`, regenerate indexes, and run the harness again.
+8. For dashboard changes, verify both API output and the UI.
 
 ## Pattern Note Standard
 
 Accepted pattern notes must be Markdown with YAML frontmatter and must include source traceability:
 
-- `source_repos[].repo`, `source_repos[].url`, and concrete `reference_files`
+- `source_repos[].repo`, `source_repos[].url`, concrete `source_repos[].commit`, and 2-4 `reference_files`
 - retrieval fields such as engineering problem, project type, pattern type, transfer targets, complexity, and quality score
-- body sections for engineering problem, core judgment, use/avoid conditions, design forces, boundary decisions, failure modes, alternatives, transfer guidance, implementation hint, and source evidence
+- body sections for engineering problem, core judgment, use/avoid conditions, design forces, boundary decisions, failure modes, alternatives, transfer guidance, implementation hint, evidence table, and source evidence
+
+The evidence table is not decorative. Each row must name one reference file, describe the observed structure, list concrete functions/classes/tests/modules/config keys, and explain why that evidence supports the pattern. Prefer fewer patterns over weak evidence.
 
 Each note should support progressive disclosure:
 
@@ -63,6 +66,7 @@ npm install
 npm run seed -- --list
 npm run seed -- --limit 3
 npm run daily
+npm run evidence
 npm run index
 npm run harness
 npm test
@@ -78,6 +82,7 @@ Before claiming the knowledge base or website is ready, run the relevant checks:
 - `npm test`
 - `npm run typecheck`
 - `npm run build`
+- `npm run evidence` when legacy notes, commit traceability, or evidence tables were changed
 - `npm run harness`
 - API check for `/api/knowledge/summary` or `/api/knowledge/archive` when archive/dashboard behavior changed
 
