@@ -54,6 +54,8 @@ The evidence table is not decorative. Each row must name one reference file, des
 
 When ingestion records a commit SHA, subsequent tree, README, and selected file fetches must use that commit SHA as the ref. Do not fetch evidence from a moving branch after recording a concrete commit.
 
+LLM use is limited to Pattern Extraction and Pattern Review. Discovery, scoring, ingestion, source snapshots, harness, indexes, and learned-repo archive writes must remain deterministic. Use `EXTRACTOR_MODE=auto|heuristic|llm`; explicit `llm` requires `OPENAI_API_KEY`. LLM extraction must receive a bounded evidence pack and the host must normalize repo, URL, commit, and reference files back to the stored snapshot.
+
 Each note should support progressive disclosure:
 
 - frontmatter and retrieval tags for fast filtering
@@ -87,12 +89,14 @@ Before claiming the knowledge base or website is ready, run the relevant checks:
 - `npm run evidence` when legacy notes, commit traceability, or evidence tables were changed
 - `npm run harness`
 - API check for `/api/knowledge/summary` or `/api/knowledge/archive` when archive/dashboard behavior changed
+- For deterministic smoke tests, prefer `EXTRACTOR_MODE=heuristic npm run daily -- --fixture`
 
 Report exact counts for learned repos, pending repos, checked files, and failures.
 
 ## Common Mistakes
 
 - Treating human-facing cards as the agent-readable source of truth.
+- Letting LLMs participate in discovery, scoring, ingestion, indexing, or harness validation.
 - Re-learning repos already recorded in `learned_repos.json`.
 - Adding tags without regenerating indexes.
 - Publishing local secrets or generated private Work Contexts data.
