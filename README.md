@@ -69,3 +69,7 @@ Review `skills/*/evals/trigger-prompts.csv` when changing skill names, descripti
 ## Sanitization
 
 This repository should not contain private local paths, tokens, credentials, personal identifiers, or private project details. Use placeholders such as `$CODEX_HOME`, `PROJECT_ROOT`, and `OBSIDIAN_VAULT`.
+
+## Attribution
+
+See [NOTICE](NOTICE) for inspiration and attribution notes.

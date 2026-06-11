@@ -68,18 +68,21 @@ for csv_path in root.glob("skills/*/evals/trigger-prompts.csv"):
 for csv_path in root.glob("skills/*/evals/golden-prompts.csv"):
     with csv_path.open(newline="", encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
-    expected_header = ["id", "mode", "prompt", "expected_read", "expected_output", "rubric_focus"]
+    expected_header = ["id", "mode", "prompt_ref", "expected_read", "expected_output", "rubric_focus"]
     if not rows or list(rows[0].keys()) != expected_header:
         errors.append(f"{csv_path}: bad golden prompt header")
     for row in rows:
-        if not row.get("prompt") or not row.get("expected_output"):
+        if not row.get("prompt_ref") or not row.get("expected_output"):
             errors.append(f"{csv_path}: incomplete golden prompt row {row.get('id')}")
+        prompt_ref = row.get("prompt_ref", "").strip()
+        if prompt_ref and not (csv_path.parents[1] / prompt_ref).exists():
+            errors.append(f"{csv_path}: missing prompt_ref target {prompt_ref} in {row.get('id')}")
         for rel in row.get("expected_read", "").split(";"):
             rel = rel.strip()
             if rel and not (csv_path.parents[1] / rel).exists():
                 errors.append(f"{csv_path}: missing expected_read target {rel} in {row.get('id')}")
 
-for md in list(root.glob("skills/*/SKILL.md")) + list(root.glob("skills/*/README.md")) + list(root.glob("skills/*/examples/*.md")):
+for md in [root / "README.md"] + list(root.glob("skills/*/SKILL.md")) + list(root.glob("skills/*/README.md")) + list(root.glob("skills/*/examples/*.md")):
     text = md.read_text(encoding="utf-8")
     for link in re.findall(r"\[[^\]]+\]\(([^)]+)\)", text):
         if "://" in link or link.startswith("#"):
@@ -96,6 +99,16 @@ for image_path in root.glob("skills/bluegrid-xhs-illustrations/examples/images/[
     height = int.from_bytes(data[20:24], "big")
     if (width, height) != (1080, 1350):
         errors.append(f"{image_path}: expected 1080x1350, got {width}x{height}")
+
+line_limited = [
+    root / "scripts/run-golden-tests.sh",
+    *root.glob("skills/bluegrid-xhs-illustrations/evals/*.csv"),
+    *root.glob("skills/bluegrid-xhs-illustrations/agents/*.yaml"),
+]
+for path in line_limited:
+    for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        if len(line) > 200:
+            errors.append(f"{path}: line {lineno} exceeds 200 chars")
 
 for schema_path in root.glob("skills/*/templates/*.schema.yaml"):
     with schema_path.open(encoding="utf-8") as f:

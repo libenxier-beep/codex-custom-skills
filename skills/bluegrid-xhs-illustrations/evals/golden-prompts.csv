@@ -1,8 +1,8 @@
-id,mode,prompt,expected_read,expected_output,rubric_focus
-xhs-shot-list,strategy,"这个选题想做小红书图文：把碎片灵感变成一篇能发布的笔记。先别生成图，给我配图方案。","SKILL.md;references/style-dna.md;references/bluegrid-ip.md;references/composition-patterns.md","3-item shot list; no image_gen call","小蓝格动作主体;短标注;非模板化隐喻"
-xhs-single-image,generate,"用小蓝格耳机风格生成一张小红书首图：为什么你收藏了很多素材，还是写不出东西。","SKILL.md;references/style-dna.md;references/bluegrid-ip.md;references/prompt-template.md;references/qa-checklist.md","one 4:5 image prompt or generated image; QA notes","4:5;耳机可见;小蓝格拉出真判断;无PPT标题"
-article-16x9,generate,"这段文章需要一张横版正文配图：很多 AI 工作流失败，不是因为工具不够多，而是每一步都没有明确输入输出。","SKILL.md;references/style-dna.md;references/bluegrid-ip.md;references/prompt-template.md","one 16:9 article illustration prompt or generated image","16:9;低科技隐喻;小蓝格修复混乱输入"
-bad-ppt-fix,repair,"这张图像PPT流程图，小蓝格只站在旁边，帮我改得更像小蓝格风格。","SKILL.md;references/qa-checklist.md;examples/04-bad-ppt-style-and-fix.md","diagnosis plus repair prompt","去标题;去节点网格;动作主体"
-remove-title-edit,edit,"这张图左上角多了“内容工作流图”几个字，帮我去掉，其它别动。","SKILL.md;references/prompt-template.md;examples/05-remove-title-edit.md","targeted edit prompt; preserve invariants","只删目标文字;保留IP和构图"
-no-image-tool,fallback,"当前环境没有 image_gen，但我想要三张小蓝格小红书配图。","SKILL.md;references/prompt-template.md;evals/visual-rubric.md","shot list plus one copyable prompt per image plus QA checklist and filenames","不声称已生成;提示词可复制;包含评分标准"
-real-image-baseline,review,"用现有样图校准小蓝格风格，再生成同系列新图。","SKILL.md;examples/images/contact-sheet.png;examples/prompts.md;evals/visual-rubric.md","style calibration summary plus new prompt or generated image","参考真实样图但不复刻;保持小蓝格耳机IP;4:5小红书风格"
+id,mode,prompt_ref,expected_read,expected_output,rubric_focus
+xhs-shot-list,strategy,examples/01-xhs-topic-to-shot-list.md,SKILL.md,3-shot-list/no-image,动作主体/短标注
+xhs-single-image,generate,examples/02-xhs-topic-to-image-prompt.md,SKILL.md,4:5-prompt-or-image,耳机可见/无PPT
+article-16x9,generate,examples/03-article-to-16x9-illustration.md,SKILL.md,16:9-prompt-or-image,低科技隐喻
+bad-ppt-fix,repair,examples/04-bad-ppt-style-and-fix.md,SKILL.md,diagnosis+repair-prompt,去标题/去节点
+remove-title-edit,edit,examples/05-remove-title-edit.md,SKILL.md,targeted-edit-prompt,只删目标文字
+no-image-tool,fallback,examples/prompts.md,evals/visual-rubric.md,shot-list+copyable-prompts,不声称已生成
+real-image-baseline,review,examples/images/contact-sheet.png,examples/prompts.md,calibration+new-prompt,参考但不复刻

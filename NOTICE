@@ -1,0 +1,22 @@
+Codex Custom Skills
+Copyright (c) 2026 libenxier-beep
+
+This repository contains custom-built Codex skills and reusable agent
+workflow materials.
+
+Attribution
+-----------
+
+The `bluegrid-xhs-illustrations` skill's structure and visual-system
+approach were inspired by Ian's 小黑 illustration skill:
+
+https://github.com/helloianneo/ian-xiaohei-illustrations
+
+The inspiration is architectural and methodological: reusable IP character,
+style DNA, composition patterns, prompt templates, QA rules, and example
+assets. 小蓝格 is an independent personal IP adapted for Xiaohongshu-style
+4:5 content and blue, clean creator-system visuals.
+
+No Ian 小黑 source images, example assets, or prompt text are copied into this
+repository.
+

@@ -86,4 +86,4 @@ The examples are calibration assets, not layouts to copy. Future images should p
 
 ## Credits
 
-This skill's structure and visual-system approach were inspired by Ian's 小黑 illustration skill: a reusable IP character, style DNA, composition patterns, prompt templates, QA rules, and example assets. 小蓝格 is a separate personal IP adapted for Xiaohongshu-style 4:5 content and blue, clean creator-system visuals.
+This skill's structure and visual-system approach were inspired by Ian's 小黑 illustration skill: a reusable IP character, style DNA, composition patterns, prompt templates, QA rules, and example assets. 小蓝格 is a separate personal IP adapted for Xiaohongshu-style 4:5 content and blue, clean creator-system visuals. See the repository [NOTICE](https://github.com/libenxier-beep/codex-custom-skills/blob/main/NOTICE) for the formal attribution note.
