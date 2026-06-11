@@ -13,6 +13,7 @@ expect_fail() {
 }
 
 python3 "$ROOT/skills/scripts/khub-validate.py" line-endings "$ROOT/skills"
+python3 "$ROOT/skills/domain-knowledge-distiller/scripts/run_static_evals.py"
 
 bash "$ROOT/skills/khub-classifier-router/scripts/validate-route-plan.sh" \
   "$ROOT/skills/khub-classifier-router/examples/output-route-plan.create.yaml"

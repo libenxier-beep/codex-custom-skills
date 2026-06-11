@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-06-11",
+  "purpose": "Fixture registry for validate_work_contexts.py.",
+  "path_policy": "All paths in this file are repo-relative.",
+  "contexts": [
+    {
+      "id": "sample_context",
+      "path": "sample_context/README.md",
+      "summary": "Fixture domain used to validate work-context routing controls.",
+      "triggers": ["sample durable knowledge"],
+      "non_triggers": ["temporary summary only"],
+      "read_path": [
+        "sample_context/README.md",
+        "sample_context/index.md",
+        "sample_context/retrieval.md"
+      ],
+      "deeper_files": [
+        "sample_context/principles.md"
+      ],
+      "eval_file": "sample_context/evals/router_cases.csv",
+      "risk_file": "sample_context/open_risks.md",
+      "status": "active",
+      "last_reviewed": "2026-06-11",
+      "sync_targets": {
+        "codex": true,
+        "github": false
+      },
+      "depends_on": []
+    }
+  ]
+}

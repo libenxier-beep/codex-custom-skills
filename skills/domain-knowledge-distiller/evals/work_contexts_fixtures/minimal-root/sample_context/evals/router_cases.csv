@@ -1,0 +1,3 @@
+id,user_request,should_load_context,expected_first_file,expected_deeper_files,negative_reason
+sample-positive-001,"Turn this source into durable reusable knowledge.",yes,sample_context/README.md,sample_context/principles.md,
+sample-negative-001,"Summarize this in 100 words.",no,,,"temporary summary only"

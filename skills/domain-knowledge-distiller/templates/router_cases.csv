@@ -1,0 +1,3 @@
+id,user_request,should_load_context,expected_first_file,expected_deeper_files,negative_reason
+{{domain_slug}}-positive-001,"{{positive_user_request}}",yes,{{domain_slug}}/README.md,"{{domain_slug}}/{{deeper_file}}",
+{{domain_slug}}-negative-001,"{{negative_user_request}}",no,,,"{{negative_reason}}"
