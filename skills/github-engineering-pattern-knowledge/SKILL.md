@@ -52,6 +52,8 @@ Accepted pattern notes must be Markdown with YAML frontmatter and must include s
 
 The evidence table is not decorative. Each row must name one reference file, describe the observed structure, list concrete functions/classes/tests/modules/config keys, and explain why that evidence supports the pattern. Prefer fewer patterns over weak evidence.
 
+When ingestion records a commit SHA, subsequent tree, README, and selected file fetches must use that commit SHA as the ref. Do not fetch evidence from a moving branch after recording a concrete commit.
+
 Each note should support progressive disclosure:
 
 - frontmatter and retrieval tags for fast filtering
