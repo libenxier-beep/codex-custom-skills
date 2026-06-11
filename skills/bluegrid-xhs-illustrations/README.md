@@ -84,3 +84,6 @@ Images below 8/10 on the visual rubric should not be used as final outputs witho
 
 The examples are calibration assets, not layouts to copy. Future images should preserve the IP and visual DNA while inventing fresh metaphors for the current content.
 
+## Credits
+
+This skill's structure and visual-system approach were inspired by Ian's 小黑 illustration skill: a reusable IP character, style DNA, composition patterns, prompt templates, QA rules, and example assets. 小蓝格 is a separate personal IP adapted for Xiaohongshu-style 4:5 content and blue, clean creator-system visuals.
