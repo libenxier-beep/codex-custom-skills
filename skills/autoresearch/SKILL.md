@@ -1,11 +1,11 @@
 ---
 name: autoresearch
-description: Use when the user wants Codex to run, adapt, or audit a bounded metric-driven experiment loop in karpathy/autoresearch or a similarly small repo with a clear editable scope, validation command, metric, and keep/discard criterion.
+description: Use when the user wants Codex to run, adapt, or audit a bounded metric-driven experiment loop for code, CLI behavior, prompts, benchmark harnesses, or karpathy/autoresearch-style repos with clear editable scope, validation command or eval set, metric, and keep/discard criterion.
 ---
 
 # Autoresearch
 
-Autoresearch is a controlled experiment loop for code or model improvements: define a metric, run a baseline, try one hypothesis at a time, verify, keep only proven improvements, and leave an audit trail.
+Autoresearch is a controlled experiment loop for verifiable improvements: define a metric, run a baseline, try one hypothesis at a time, verify, keep only proven improvements, and leave an audit trail.
 
 This skill is inspired by Karpathy's `karpathy/autoresearch`, where `program.md` guides agents to edit `train.py`, commit candidates, run fixed-budget training, compare `val_bpb`, and reset worse candidates. Treat upstream as the canonical special case, not the only possible use.
 
@@ -15,6 +15,9 @@ Source note: upstream repository `https://github.com/karpathy/autoresearch`, esp
 
 - The user names `autoresearch`, `Karpathy autoresearch`, overnight experiments, autonomous metric-driven iteration, candidate commits, or keep/reset experiment loops.
 - The task has a measurable objective such as lower loss, fewer failures, higher benchmark score, faster runtime, or a deterministic acceptance command.
+- The user wants iterative CLI validation optimization: repeatedly adjust CLI behavior, flags, parsing, error messages, or output formatting against a fixed command suite.
+- The user wants prompt or system-prompt validation optimization against an eval set, golden prompts, scorer, rubric, judge, pass rate, or regression suite.
+- The user wants to improve a benchmark harness, test fixture, grading script, or evaluation pipeline while keeping the metric path stable.
 - There is a bounded editable surface, ideally one file or a small explicit file set.
 - Failed ideas can be safely discarded or isolated.
 - The user asks for experiment execution, experiment setup, or review of an autoresearch-style loop.
@@ -26,6 +29,7 @@ Source note: upstream repository `https://github.com/karpathy/autoresearch`, esp
 - There is no objective metric or verification command, and the user will not define one.
 - The target is a production system, shared branch, user data store, deployment, finance/legal/medical workflow, or any environment where failed edits have unsafe side effects.
 - The only validation is subjective taste and the user has not defined a rubric, scorer, iteration budget, and stop condition.
+- The user only wants a prompt rewritten for taste, tone, or style with no eval set, scorer, golden prompts, or pass/fail rubric.
 
 ## Do Not Start The Loop When
 
@@ -113,10 +117,16 @@ Statuses are `baseline`, `keep`, `discard`, `crash`, or `blocked`.
 1. Classify the run.
    - Upstream mode: repo is `karpathy/autoresearch` or has `prepare.py`, `train.py`, `program.md`, and `pyproject.toml`.
    - Adapted mode: another repo with explicit metric, command, schema, and scoped editable files.
+   - CLI mode: command-line behavior is the artifact, with fixed invocation fixtures and machine-checkable output, exit code, latency, or error text.
+   - Prompt mode: prompt files are the artifact, with a fixed eval set, scorer, rubric, golden outputs, or judge command.
+   - Harness mode: the benchmark harness or eval runner is the artifact; the contract must name which metric path is read-only.
 
 2. Read the minimum context.
    - Upstream mode: read `README.md`, `program.md`, `prepare.py`, `train.py`, and `pyproject.toml`.
    - Adapted mode: read the files named in the contract plus verification command docs if present.
+   - CLI mode: read CLI entrypoint, parser/config files, fixtures, and the validation command.
+   - Prompt mode: read prompt templates, eval set or golden prompts, scorer/judge config, and failure examples.
+   - Harness mode: read harness code, fixtures, metric extraction path, and docs explaining expected outputs.
 
 3. Verify the environment.
    - Confirm required tools exist, such as `uv` for upstream mode.
@@ -222,7 +232,11 @@ Before calling an autoresearch run successful:
 
 - Explicit trigger: "Use autoresearch on this repo for 8 iterations."
 - Implicit trigger: "Let Codex try overnight experiments and keep only metric improvements."
+- CLI trigger: "Iterate on this CLI until the validation suite passes more cases."
+- Prompt trigger: "Optimize this prompt against the eval set and keep only score improvements."
+- Harness trigger: "Improve this benchmark harness without changing the metric definition."
 - Negative control: "Review Karpathy autoresearch and summarize the idea" should not start an experiment loop.
+- Negative prompt control: "Rewrite this prompt until it feels better" should not start a loop unless the user defines an eval set or scorer.
 - Edge case: dirty workspace should load this skill but stop at isolation negotiation.
 - Evidence check: contract validates, baseline exists, at least one log is parsed, results TSV uses the selected schema, and changed files match scope.
 - Script check: `validate_contract.py`, `parse_result.py`, and `append_results.py` run successfully on a small fixture.
@@ -231,6 +245,8 @@ Before calling an autoresearch run successful:
 
 - Treating "autonomous" as permission to run forever. Use bounded budgets.
 - Treating any research task as autoresearch. Require an executable metric.
+- Treating any prompt rewrite as autoresearch. Prompt mode requires an eval set, scorer, rubric, golden prompts, or judge command.
+- Treating CLI cleanup as autoresearch without fixed commands and expected outputs.
 - Leaving deterministic mechanics as prose. Use scripts for contract validation, log parsing, and result appends.
 - Keeping a candidate because it feels clever. Keep only measured improvements beyond `min_delta`.
 - Treating a dirty worktree as "do not load skill." Load the skill, negotiate isolation, and do not start the loop.

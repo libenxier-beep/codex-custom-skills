@@ -254,6 +254,30 @@ for schema_path in root.glob("skills/*/templates/*.schema.yaml"):
     if "required" not in schema or "properties" not in schema:
         errors.append(f"{schema_path}: schema must define required and properties")
 
+autoresearch_eval = root / "skills/autoresearch/evals/trigger-prompts.csv"
+if autoresearch_eval.exists():
+    with autoresearch_eval.open(newline="", encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    by_id = {row["id"]: row for row in rows}
+    required_cases = {
+        "cli-validation-001": True,
+        "prompt-eval-001": True,
+        "benchmark-harness-001": True,
+        "negative-prompt-no-eval-001": False,
+    }
+    for case_id, should_trigger in required_cases.items():
+        row = by_id.get(case_id)
+        if not row:
+            errors.append(f"{autoresearch_eval}: missing {case_id}")
+            continue
+        expected = "true" if should_trigger else "false"
+        if row.get("should_trigger") != expected:
+            errors.append(f"{autoresearch_eval}: {case_id} should_trigger must be {expected}")
+    skill_text = (root / "skills/autoresearch/SKILL.md").read_text(encoding="utf-8")
+    for needle in ["CLI", "prompt", "benchmark harness", "eval set"]:
+        if needle not in skill_text:
+            errors.append(f"skills/autoresearch/SKILL.md: missing trigger wording {needle!r}")
+
 if errors:
     print("\n".join(errors), file=sys.stderr)
     raise SystemExit(1)
