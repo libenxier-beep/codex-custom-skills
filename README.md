@@ -4,6 +4,7 @@ Public collection of custom-built Codex skills and reusable agent workflows.
 
 ## Skills
 
+- `autoresearch`: run bounded metric-driven experiment loops inspired by Karpathy's autoresearch pattern.
 - `bluegrid-xhs-illustrations`: generate clean 小蓝格 headphone-IP Xiaohongshu illustrations and Chinese article visuals.
 - `domain-knowledge-distiller`: distill high-value sources into durable `work_contexts/<domain_slug>/` knowledge bases with provenance, routing, evals, and portability checks.
 - `flomo-daily-intake`: collect raw Flomo notes for a specific day or time range before routing or deposition.
@@ -17,6 +18,7 @@ Shared workflow guidance lives in `skills/workflow-principles.md`.
 
 ```text
 skills/
+  autoresearch/
   bluegrid-xhs-illustrations/
   domain-knowledge-distiller/
   flomo-daily-intake/
@@ -34,6 +36,7 @@ Copy the desired skill directories into your Codex skills directory:
 
 ```bash
 mkdir -p "$CODEX_HOME/skills"
+cp -R skills/autoresearch "$CODEX_HOME/skills/"
 cp -R skills/bluegrid-xhs-illustrations "$CODEX_HOME/skills/"
 cp -R skills/domain-knowledge-distiller "$CODEX_HOME/skills/"
 cp -R skills/flomo-daily-intake "$CODEX_HOME/skills/"

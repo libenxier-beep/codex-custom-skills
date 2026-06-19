@@ -7,6 +7,16 @@ workflow materials.
 Attribution
 -----------
 
+The `autoresearch` skill is inspired by Andrej Karpathy's `autoresearch`
+project:
+
+https://github.com/karpathy/autoresearch
+
+The inspiration is methodological: bounded autonomous experiment loops,
+metric-first evaluation, single-file scoped edits, baseline comparison,
+and keep-or-discard candidate handling. No upstream source code is copied
+into this repository.
+
 The `bluegrid-xhs-illustrations` skill's structure and visual-system
 approach were inspired by Ian's 小黑 illustration skill:
 
@@ -19,4 +29,3 @@ assets. 小蓝格 is an independent personal IP adapted for Xiaohongshu-style
 
 No Ian 小黑 source images, example assets, or prompt text are copied into this
 repository.
-

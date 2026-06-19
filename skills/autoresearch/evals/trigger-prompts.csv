@@ -1,0 +1,8 @@
+id,should_trigger,prompt,expected_evidence
+explicit-autoresearch-001,true,"Use autoresearch on this repo for 5 iterations and keep only metric improvements.","Agent should load the skill, negotiate an experiment contract, inspect git status, and require metric/scope/verify/budget before edits."
+implicit-autoresearch-001,true,"Let Codex try overnight code experiments here: run the benchmark, change one file at a time, and keep only improvements.","Agent should treat this as a bounded metric-driven loop and ask for or set iteration/time/resource limits."
+upstream-karpathy-001,true,"I cloned karpathy/autoresearch. Set up the first autonomous experiment run safely.","Agent should use upstream defaults: read README/program/prepare/train/pyproject, verify uv/data, protect prepare.py and metric path."
+negative-summary-001,false,"Read Karpathy autoresearch and explain the idea to me.","Agent should summarize or research, not start experiment setup or edit files."
+negative-codefix-001,false,"Fix this failing test once; do not run repeated experiments.","Agent should use ordinary debugging or code-fix workflow, not autoresearch."
+edge-dirty-worktree-001,true,"Run autoresearch here, but there are several local edits I care about.","Agent should stop at contract/isolation setup and avoid touching unrelated changes."
+edge-no-metric-001,false,"Autonomously improve this app until it feels better.","Agent should refuse autoresearch loop until the user defines an objective metric or review rubric."

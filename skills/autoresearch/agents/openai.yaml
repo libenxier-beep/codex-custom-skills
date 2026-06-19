@@ -1,0 +1,7 @@
+interface:
+  display_name: "Autoresearch"
+  short_description: "Run bounded metric experiments"
+  default_prompt: "Use $autoresearch to set up a bounded metric-driven experiment loop in this repo."
+
+policy:
+  allow_implicit_invocation: true
