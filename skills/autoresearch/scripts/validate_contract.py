@@ -28,14 +28,20 @@ def load_contract(path: pathlib.Path) -> dict[str, Any]:
     return data
 
 
-def require(data: dict[str, Any], path: str, expected: type) -> Any:
+def expected_type_name(expected: Any) -> str:
+    if isinstance(expected, tuple):
+        return " or ".join(item.__name__ for item in expected)
+    return expected.__name__
+
+
+def require(data: dict[str, Any], path: str, expected: Any) -> Any:
     current: Any = data
     for part in path.split("."):
         if not isinstance(current, dict) or part not in current:
             fail(f"missing required field: {path}")
         current = current[part]
     if not isinstance(current, expected):
-        fail(f"{path} must be {expected.__name__}")
+        fail(f"{path} must be {expected_type_name(expected)}")
     if expected is str and not current.strip():
         fail(f"{path} must not be empty")
     if expected is list and not current:

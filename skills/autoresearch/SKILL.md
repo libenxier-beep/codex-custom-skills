@@ -60,16 +60,18 @@ If any required field is missing, ask concise questions or propose conservative 
 Use the packaged scripts for repeated mechanics instead of hand-rolling shell snippets:
 
 ```bash
-python3 scripts/validate_contract.py CONTRACT.json
-python3 scripts/parse_result.py --mode upstream --log logs/candidate.log
-python3 scripts/append_results.py --schema upstream --results results.tsv \
+SKILL_DIR="${SKILL_DIR:-$HOME/.codex/skills/autoresearch}"
+python3 "$SKILL_DIR/scripts/validate_contract.py" CONTRACT.json
+python3 "$SKILL_DIR/scripts/parse_result.py" --mode upstream --log logs/candidate.log
+python3 "$SKILL_DIR/scripts/append_results.py" --schema upstream --results results.tsv \
   --commit "$commit" --metric "$val_bpb" --memory-gb "$memory_gb" \
-  --status keep --description "short note"
+  --status "$decision_status" --description "short note"
 ```
 
 - `validate_contract.py` checks required fields, isolation strategy, scoped file overlap, metric noise fields, and evidence paths.
 - `parse_result.py` parses upstream `val_bpb` and `peak_vram_mb` by default, or a generic metric regex when adapted.
 - `append_results.py` owns TSV headers and row appends so long runs do not drift between schemas.
+- `SKILL_DIR` must point to the installed skill directory, not the target repo. On this machine the default expands to the local Codex skill path; override it when testing a checkout copy.
 
 ## Result Schemas
 
@@ -122,14 +124,15 @@ Statuses are `baseline`, `keep`, `discard`, `crash`, or `blocked`.
    - Run setup only when approved by contract or user.
 
 4. Validate the contract and initialize tracking.
-   - Write or receive a contract JSON and run `scripts/validate_contract.py`.
+   - Set `SKILL_DIR="${SKILL_DIR:-$HOME/.codex/skills/autoresearch}"`.
+   - Write or receive a contract JSON and run `$SKILL_DIR/scripts/validate_contract.py`.
    - Create the logs directory and results TSV location from the contract.
    - Keep logs/results outside committed source unless the user wants them versioned.
 
 5. Establish the baseline.
    - Run the verification command without code changes.
-   - Parse the log with `scripts/parse_result.py`.
-   - Append a `baseline` row with `scripts/append_results.py`.
+   - Parse the log with `$SKILL_DIR/scripts/parse_result.py`.
+   - Append a `baseline` row with `$SKILL_DIR/scripts/append_results.py`.
    - Record the baseline commit with `git rev-parse --short HEAD`.
 
 6. Run one candidate at a time.
@@ -138,10 +141,10 @@ Statuses are `baseline`, `keep`, `discard`, `crash`, or `blocked`.
    - Inspect `git diff -- <approved files>`.
    - In upstream mode, commit the candidate before running it.
    - Run the verification command with timeout and log redirection.
-   - Parse the metric and memory with `scripts/parse_result.py`.
-   - Append a TSV row with `scripts/append_results.py`.
+   - Parse the metric and memory with `$SKILL_DIR/scripts/parse_result.py`.
    - Apply the metric noise rules.
-   - Keep, discard, crash, or block the candidate before starting the next one.
+   - Decide `keep`, `discard`, `crash`, or `blocked`.
+   - Append the final status row with `$SKILL_DIR/scripts/append_results.py` before starting the next candidate.
 
 7. End with a handoff.
    - Report contract, baseline, best result, iteration count, kept commits, discarded commits, crash count, changed files, logs/results paths, and remaining risks.
@@ -162,19 +165,28 @@ candidate_commit="$(git rev-parse --short HEAD)"
 ```
 
 4. Run `uv run train.py > logs/$candidate_commit.log 2>&1` with the contract timeout.
-5. Parse and append to upstream TSV:
+5. Parse the run result. Do not append a TSV row yet:
 
 ```bash
-python3 scripts/parse_result.py --mode upstream --log "logs/$candidate_commit.log"
-python3 scripts/append_results.py --schema upstream --results results.tsv \
-  --commit "$candidate_commit" --metric "$val_bpb" --memory-gb "$memory_gb" \
-  --status keep --description "<hypothesis>"
+SKILL_DIR="${SKILL_DIR:-$HOME/.codex/skills/autoresearch}"
+python3 "$SKILL_DIR/scripts/parse_result.py" \
+  --mode upstream \
+  --log "logs/$candidate_commit.log" \
+  > "logs/$candidate_commit.result.json"
 ```
 
-6. If the candidate beats the current best by `min_delta`, keep the commit as the new incumbent.
-7. If it crashes, worsens, or ties without an approved simplicity win, mark it `discard`.
-8. If discard permission is explicit and `git status --short -- train.py` is clean after the candidate commit, remove the failed candidate with `git reset --hard HEAD~1`.
-9. If discard permission is absent or state is not clean, do not reset; leave the candidate commit on the experiment branch and report the required manual discard.
+6. Apply the metric noise rules against the current incumbent and set `decision_status` to `keep`, `discard`, `crash`, or `blocked`.
+7. Append the decided status to upstream TSV:
+
+```bash
+python3 "$SKILL_DIR/scripts/append_results.py" --schema upstream --results results.tsv \
+  --commit "$candidate_commit" --metric "$val_bpb" --memory-gb "$memory_gb" \
+  --status "$decision_status" --description "<hypothesis>"
+```
+
+8. If `decision_status=keep`, keep the commit as the new incumbent.
+9. If it is `discard` and discard permission is explicit, verify `git status --short -- train.py` is clean after the candidate commit, then remove the failed candidate with `git reset --hard HEAD~1`.
+10. If discard permission is absent or state is not clean, do not reset; leave the candidate commit on the experiment branch and report the required manual discard.
 
 Never reset across user work, uncommitted edits, harness changes, or logs/results that the user wanted versioned.
 
@@ -186,7 +198,7 @@ Use these only when the repo matches upstream `karpathy/autoresearch` and the us
 - Read-only files: `prepare.py`, `program.md`, tokenizer/data utilities, and `evaluate_bpb` metric path.
 - Setup command: `uv sync`, then `uv run prepare.py` if data is absent and the user approves.
 - Verify command: `uv run train.py > logs/$candidate_commit.log 2>&1`.
-- Metric extraction: `scripts/parse_result.py --mode upstream --log logs/$candidate_commit.log`.
+- Metric extraction: `$SKILL_DIR/scripts/parse_result.py --mode upstream --log logs/$candidate_commit.log`.
 - Result schema: upstream TSV, `commit	val_bpb	memory_gb	status	description`.
 - Direction: lower `val_bpb` is better.
 - Timeout: treat a run over 10 minutes as failed unless the contract sets a different budget.

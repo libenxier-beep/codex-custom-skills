@@ -19,6 +19,18 @@ for script in validate_contract.py parse_result.py append_results.py; do
   test -x "$ROOT/skills/autoresearch/scripts/$script"
 done
 
+if grep -n 'python3 scripts/' "$ROOT/skills/autoresearch/SKILL.md"; then
+  echo "autoresearch SKILL.md must call helper scripts via SKILL_DIR, not target-repo scripts/" >&2
+  exit 1
+fi
+grep -q 'SKILL_DIR=' "$ROOT/skills/autoresearch/SKILL.md"
+
+if grep -n -- '--status keep --description "<hypothesis>"' "$ROOT/skills/autoresearch/SKILL.md"; then
+  echo "autoresearch strict flow must decide status before appending results" >&2
+  exit 1
+fi
+grep -q '\$decision_status' "$ROOT/skills/autoresearch/SKILL.md"
+
 tmpdir="$(mktemp -d)"
 trap 'rm -rf "$tmpdir"' EXIT HUP INT TERM
 
@@ -60,6 +72,28 @@ JSON
 
 python3 "$ROOT/skills/autoresearch/scripts/validate_contract.py" \
   "$tmpdir/autoresearch-contract.json"
+
+python3 - <<'PY' "$tmpdir/autoresearch-contract.json" "$tmpdir/bad-min-delta.json"
+import json
+import sys
+
+data = json.load(open(sys.argv[1], encoding="utf-8"))
+data["metric_noise"]["min_delta"] = "tiny"
+with open(sys.argv[2], "w", encoding="utf-8") as f:
+    json.dump(data, f)
+PY
+
+if python3 "$ROOT/skills/autoresearch/scripts/validate_contract.py" \
+  "$tmpdir/bad-min-delta.json" >"$tmpdir/bad.out" 2>"$tmpdir/bad.err"; then
+  echo "expected bad min_delta contract to fail" >&2
+  exit 1
+fi
+if grep -q Traceback "$tmpdir/bad.err"; then
+  echo "bad min_delta should produce a contract error, not a Python traceback" >&2
+  cat "$tmpdir/bad.err" >&2
+  exit 1
+fi
+grep -q 'contract error: metric_noise.min_delta must be int or float' "$tmpdir/bad.err"
 
 cat >"$tmpdir/run.log" <<'LOG'
 epoch: 1
