@@ -15,6 +15,97 @@ expect_fail() {
 python3 "$ROOT/skills/scripts/khub-validate.py" line-endings "$ROOT/skills"
 python3 "$ROOT/skills/domain-knowledge-distiller/scripts/run_static_evals.py"
 
+for script in validate_contract.py parse_result.py append_results.py; do
+  test -x "$ROOT/skills/autoresearch/scripts/$script"
+done
+
+tmpdir="$(mktemp -d)"
+trap 'rm -rf "$tmpdir"' EXIT HUP INT TERM
+
+cat >"$tmpdir/autoresearch-contract.json" <<'JSON'
+{
+  "goal": "lower validation bpb",
+  "direction": "lower",
+  "scope": {
+    "editable_files": ["train.py"],
+    "forbidden_files": ["prepare.py", "program.md"]
+  },
+  "verify": {
+    "command": "uv run train.py > logs/candidate.log 2>&1",
+    "timeout_seconds": 600,
+    "log_file": "logs/candidate.log",
+    "metric_regex": "^val_bpb:\\s*([0-9.]+)"
+  },
+  "budget": {
+    "max_iterations": 3,
+    "max_wall_time_minutes": 60,
+    "resource_ceiling": "peak_vram_mb <= 24000",
+    "stop_condition": "no candidate beats current best by min_delta"
+  },
+  "isolation": {
+    "strategy": "branch",
+    "name": "autoresearch/test"
+  },
+  "discard_permission": true,
+  "evidence": {
+    "results_file": "results.tsv",
+    "logs_dir": "logs"
+  },
+  "metric_noise": {
+    "min_delta": 0.001,
+    "repeat_on_near_tie": true
+  }
+}
+JSON
+
+python3 "$ROOT/skills/autoresearch/scripts/validate_contract.py" \
+  "$tmpdir/autoresearch-contract.json"
+
+cat >"$tmpdir/run.log" <<'LOG'
+epoch: 1
+val_bpb: 1.2345
+peak_vram_mb: 4096
+LOG
+
+python3 "$ROOT/skills/autoresearch/scripts/parse_result.py" \
+  --mode upstream \
+  --log "$tmpdir/run.log" >"$tmpdir/parsed.json"
+
+python3 - <<'PY' "$tmpdir/parsed.json"
+import json
+import math
+import sys
+
+data = json.loads(open(sys.argv[1], encoding="utf-8").read())
+assert data["metric_name"] == "val_bpb"
+assert math.isclose(data["metric"], 1.2345)
+assert math.isclose(data["memory_gb"], 4.0)
+PY
+
+python3 "$ROOT/skills/autoresearch/scripts/append_results.py" \
+  --schema upstream \
+  --results "$tmpdir/results.tsv" \
+  --commit abc1234 \
+  --metric 1.2345 \
+  --memory-gb 4.0 \
+  --status keep \
+  --description baseline
+
+python3 - <<'PY' "$tmpdir/results.tsv"
+import csv
+import sys
+
+with open(sys.argv[1], newline="", encoding="utf-8") as f:
+    rows = list(csv.DictReader(f, delimiter="\t"))
+assert rows[0] == {
+    "commit": "abc1234",
+    "val_bpb": "1.2345",
+    "memory_gb": "4.0",
+    "status": "keep",
+    "description": "baseline",
+}
+PY
+
 bash "$ROOT/skills/khub-classifier-router/scripts/validate-route-plan.sh" \
   "$ROOT/skills/khub-classifier-router/examples/output-route-plan.create.yaml"
 bash "$ROOT/skills/khub-classifier-router/scripts/validate-route-plan.sh" \
